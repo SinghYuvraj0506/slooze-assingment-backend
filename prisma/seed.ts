@@ -102,6 +102,22 @@ async function main() {
     },
   ];
 
+  const nick = await prisma.user.findUnique({
+    where: { email: 'nick@avengers.com' },
+  });
+
+  // Add payment method for Nick Fury
+  if (nick) {
+    await prisma.paymentMethod.create({
+      data: {
+        userId: nick.id,
+        type: 'VISA',
+        cardLast4: '1234',
+        isDefault: true,
+      },
+    });
+  }
+
   for (const restaurant of restaurantsData) {
     await prisma.restaurant.create({
       data: restaurant,
@@ -112,7 +128,7 @@ async function main() {
 }
 
 main()
-  .catch(e => {
+  .catch((e) => {
     console.error(e);
     process.exit(1);
   })

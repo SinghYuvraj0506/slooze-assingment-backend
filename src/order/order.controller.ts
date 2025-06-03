@@ -15,7 +15,6 @@ import { RolesGuard } from '../common/guards/roles.guard';
 import { Roles } from '../common/decorators/roles.decorator';
 import { Request } from 'express';
 import { JwtAuthGuard } from 'src/common/guards/jwt.guard';
-import { UpdatePaymentDto } from './dto/updateOrder.dto';
 
 @UseGuards(JwtAuthGuard)
 @Controller('orders')
@@ -41,22 +40,6 @@ export class OrderController {
   }
 
   @UseGuards(RolesGuard)
-  @Roles('ADMIN')
-  @Patch(':id/update-payment')
-  async updatePayment(
-    @Req() req: Request,
-    @Param('id') id: string,
-    @Body() dto: UpdatePaymentDto,
-  ) {
-    const user = req.user as any;
-    return this.orderService.updatePaymentMethod(
-      user.id,
-      id,
-      dto.paymentMethodId,
-    );
-  }
-
-  @UseGuards(RolesGuard)
   @Roles('ADMIN', 'MANAGER')
   @Patch(':id/cancel')
   async cancel(@Req() req: Request, @Param('id') id: string) {
@@ -68,5 +51,11 @@ export class OrderController {
   getAll(@Req() req: Request) {
     const user = req.user as any;
     return this.orderService.getOrders(user.id);
+  }
+
+  @Get(':id')
+  getById(@Param('id') id: string, @Req() req: Request) {
+    const user = req.user as any;
+    return this.orderService.getOrdersById(user.id, id);
   }
 }

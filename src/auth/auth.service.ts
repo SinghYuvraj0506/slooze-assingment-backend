@@ -6,6 +6,7 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UserService } from '../user/user.service';
+import { Role } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -29,12 +30,21 @@ export class AuthService {
   async login(email: string, password: string) {
     const user = await this.validateUser(email, password);
 
-    const payload = {
-      id: user.id,
-      role: user.role,
-      country: user.country,
-      status: user.status,
-    };
+    const payload =
+      user.role === Role.ADMIN
+        ? {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            status: user.status,
+          }
+        : {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            country: user.country,
+            status: user.status,
+          };
 
     return {
       access_token: this.jwtService.sign(payload),

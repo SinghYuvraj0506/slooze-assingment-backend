@@ -11,7 +11,10 @@ import { OrderStatus } from '@prisma/client';
 export class OrderService {
   constructor(private prisma: PrismaService) {}
 
-  async createOrder(userId: string, data: CreateOrderDto) {
+  async createOrder(
+    userId: string,
+    data: CreateOrderDto
+  ) {
     if (!data.items || data.items.length === 0) {
       throw new BadRequestException('Order must contain items');
     }
@@ -19,7 +22,9 @@ export class OrderService {
     // Calculate total
     const itemIds = data.items.map((i) => i.menuItemId);
     const menuItems = await this.prisma.menuItem.findMany({
-      where: { id: { in: itemIds } },
+      where: {
+        id: { in: itemIds }
+      },
     });
 
     if (menuItems?.length !== itemIds.length) {
@@ -83,7 +88,7 @@ export class OrderService {
       where: { id: orderId },
       data: {
         paymentMethodId,
-        status: OrderStatus.READY_TO_PAY,
+        status: OrderStatus.PAID,
       },
     });
   }
@@ -108,7 +113,7 @@ export class OrderService {
 
   getOrders(userId: string) {
     return this.prisma.order.findMany({
-      where: { userId },
+      // where: { userId },
       include: {
         items: {
           include: {
@@ -121,46 +126,16 @@ export class OrderService {
     });
   }
 
-  async updatePaymentMethod(
-    userId: string,
-    orderId: string,
-    paymentMethodId: string,
-  ) {
-    const order = await this.prisma.order.findFirst({
-      where: {
-        id: orderId,
-        userId,
-      },
-    });
-
-    if (!order) {
-      throw new NotFoundException('Order not found');
-    }
-
-    if (
-      order.status === OrderStatus.PAID ||
-      order.status === OrderStatus.CANCELLED
-    ) {
-      throw new BadRequestException(
-        'Cannot update payment for processed order',
-      );
-    }
-
-    const paymentMethod = await this.prisma.paymentMethod.findFirst({
-      where: {
-        id: paymentMethodId,
-        userId,
-      },
-    });
-
-    if (!paymentMethod) {
-      throw new NotFoundException('Invalid payment method');
-    }
-
-    return this.prisma.order.update({
-      where: { id: orderId },
-      data: {
-        paymentMethodId,
+  getOrdersById(userId: string, orderId: string) {
+    return this.prisma.order.findUnique({
+      where: { userId, id: orderId },
+      include: {
+        items: {
+          include: {
+            menuItem: true,
+          },
+        },
+        paymentMethod: true,
       },
     });
   }

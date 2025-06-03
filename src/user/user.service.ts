@@ -1,6 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreatePaymentMethodDto } from './dto/createPayment.dto';
+import {
+  CreatePaymentMethodDto,
+  UpdatePaymentMethodDto,
+} from './dto/createPayment.dto';
 
 @Injectable()
 export class UserService {
@@ -38,8 +41,39 @@ export class UserService {
 
   getUserPaymentMethods(userId: string) {
     return this.prisma.paymentMethod.findMany({
-      where: { userId },
+      // where: { userId },
       orderBy: { isDefault: 'desc' },
+    });
+  }
+
+  async updatePaymentMethod(
+    userId: string,
+    paymentMethodId: string,
+    data: UpdatePaymentMethodDto,
+  ) {
+    const method = await this.prisma.paymentMethod.findFirst({
+      where: {
+        id: paymentMethodId,
+        userId,
+      },
+    });
+
+    if (!method) {
+      throw new NotFoundException('Payment Details not found');
+    }
+
+    if (data.isDefault) {
+      await this.prisma.paymentMethod.updateMany({
+        where: { userId },
+        data: { isDefault: false },
+      });
+    }
+
+    return this.prisma.paymentMethod.update({
+      where: { id: paymentMethodId },
+      data: {
+        ...data,
+      },
     });
   }
 }

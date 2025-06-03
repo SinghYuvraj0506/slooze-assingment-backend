@@ -12,3 +12,18 @@ export class CreatePaymentMethodDto {
   @IsBoolean()
   isDefault: boolean;
 }
+
+export class UpdatePaymentMethodDto {
+  @IsOptional()
+  @IsString()
+  type: string;
+
+  @IsOptional()
+  @IsString()
+  @Length(4, 4, { message: 'Card last 4 digits must be exactly 4 characters' })
+  cardLast4: string;
+
+  @IsOptional()
+  @IsBoolean()
+  isDefault: boolean;
+}

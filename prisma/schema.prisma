@@ -90,7 +90,6 @@ enum Country {
 
 enum OrderStatus {
   PENDING
-  READY_TO_PAY
   PAID
   CANCELLED
 }
