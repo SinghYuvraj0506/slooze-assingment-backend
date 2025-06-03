@@ -18,7 +18,7 @@ export const cookieOptions: CookieOptions =
         maxAge: parseInt(process.env.JWT_EXPIRY as string) * 1000,
       }
     : {
-        httpOnly: true,
+        httpOnly: false,
         secure: true,
         sameSite: 'none',
         path: '/',
