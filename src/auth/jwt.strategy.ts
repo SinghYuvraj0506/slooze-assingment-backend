@@ -9,12 +9,20 @@ const cookieExtractor = (req: Request): string | null => {
   return req?.cookies?.access_token || null;
 };
 
-export const cookieOptions: CookieOptions = {
-  httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
-  sameSite: 'lax',
-  maxAge: parseInt(process.env.JWT_EXPIRY as string) * 1000,
-};
+export const cookieOptions: CookieOptions =
+  process.env.NODE_ENV === 'development'
+    ? {
+        httpOnly: true,
+        secure: false,
+        sameSite: 'lax',
+        maxAge: parseInt(process.env.JWT_EXPIRY as string) * 1000,
+      }
+    : {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'none',
+        maxAge: parseInt(process.env.JWT_EXPIRY as string) * 1000,
+      };
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
