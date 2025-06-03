@@ -21,7 +21,6 @@ export const cookieOptions: CookieOptions =
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        domain: 'slooze-assignment-frontend.vercel.app',
         path: '/',
         maxAge: parseInt(process.env.JWT_EXPIRY as string) * 1000,
       };
